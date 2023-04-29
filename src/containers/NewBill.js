@@ -84,6 +84,8 @@ export default class NewBill {
       this.fileName === "" ||
       this.fileName === undefined
     ) {
+      !this.updateBill(bill);
+      !this.onNavigate(ROUTES_PATH["Bills"]);
       console.log("fileUrl ou fileName est vide ou null");
       // Afficher un message d'erreur ou prendre une autre action appropriée
     } else {
