@@ -75,8 +75,21 @@ export default class NewBill {
       fileName: this.fileName,
       status: "pending",
     };
-    this.updateBill(bill);
-    this.onNavigate(ROUTES_PATH["Bills"]);
+    // if fileUrl pas vide ou null
+    if (
+      this.fileUrl === null ||
+      this.fileUrl === "" ||
+      this.fileUrl === undefined ||
+      this.fileName === null ||
+      this.fileName === "" ||
+      this.fileName === undefined
+    ) {
+      console.log("fileUrl ou fileName est vide ou null");
+      // Afficher un message d'erreur ou prendre une autre action appropriée
+    } else {
+      this.updateBill(bill);
+      this.onNavigate(ROUTES_PATH["Bills"]);
+    }
   };
 
   // not need to cover this function by tests
