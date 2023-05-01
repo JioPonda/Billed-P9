@@ -17,38 +17,45 @@ export default class NewBill {
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
   }
-  handleChangeFile = (e) => {
+  handleChangeFile = async (e) => {
     e.preventDefault();
     const file = this.document.querySelector(`input[data-testid="file"]`)
       .files[0];
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
-    const isGoodfileExtension = fileName.match(
-      /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg)$/
-    )
-      ? true
-      : false;
-    !isGoodfileExtension ? (e.target.value = "") : "";
     const formData = new FormData();
     const email = JSON.parse(localStorage.getItem("user")).email;
     formData.append("file", file);
     formData.append("email", email);
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true,
-        },
-      })
-      .then(({ fileUrl, key }) => {
-        console.log(fileUrl);
-        this.billId = key;
-        this.fileUrl = fileUrl;
-        this.fileName = fileName;
-      })
-      .catch((error) => console.error(error));
+    if (
+      e.target.value.includes("jpeg") ||
+      e.target.value.includes("jpg") ||
+      e.target.value.includes("png")
+    ) {
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true,
+          },
+        })
+        .then(({ fileUrl, key }) => {
+          this.billId = key;
+          this.fileUrl = fileUrl;
+          this.fileName = fileName;
+          console.log(fileUrl, fileName);
+        })
+        .catch((error) => console.error(error));
+    } else {
+      let errorMessage = document.createElement("p");
+      errorMessage.classList.add("text-danger", "h6");
+      errorMessage.setAttribute("data-testid", "errorMessage");
+      errorMessage.innerText =
+        "Vous devez choisir un fichier au format .jpg, .jpeg ou .png";
+      e.target.parentNode.append(errorMessage);
+    }
   };
   handleSubmit = (e) => {
     e.preventDefault();
@@ -75,23 +82,8 @@ export default class NewBill {
       fileName: this.fileName,
       status: "pending",
     };
-    // if fileUrl pas vide ou null
-    if (
-      this.fileUrl === null ||
-      this.fileUrl === "" ||
-      this.fileUrl === undefined ||
-      this.fileName === null ||
-      this.fileName === "" ||
-      this.fileName === undefined
-    ) {
-      !this.updateBill(bill);
-      !this.onNavigate(ROUTES_PATH["Bills"]);
-      console.log("fileUrl ou fileName est vide ou null");
-      // Afficher un message d'erreur ou prendre une autre action appropriée
-    } else {
-      this.updateBill(bill);
-      this.onNavigate(ROUTES_PATH["Bills"]);
-    }
+    this.updateBill(bill);
+    this.onNavigate(ROUTES_PATH["Bills"]);
   };
 
   // not need to cover this function by tests
